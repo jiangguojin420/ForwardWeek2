@@ -60,51 +60,61 @@ public class MainActivity extends BaseActivity<ClassifyPresenter> implements ICl
         if (NetUtil.getInstance().hasNet(this)) {
             mPresenter.getClassifyData();
         } else {
-
-            // TODO: 2020/1/3 左侧分类的查询和展示
-            // 查询到分类bean
-            ClassifyTable classifyTable = classifyTableDao.queryBuilder().unique();
-
-            if (classifyTable != null) {
-                //拿到分类的json
-                String classifyJson = classifyTable.getClassifyJson();
-                //解析
-                ClassifyBean classifyBean = new Gson().fromJson(classifyJson, ClassifyBean.class);
-
-                //设置布局管理器和适配
-                final List<ClassifyBean.ResultBean.SecondCategoryVoBean> classifyList = classifyBean.getResult().get(0).getSecondCategoryVo();
-
-                LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
-                linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-                mRecyclerClassify.setLayoutManager(linearLayoutManager);
-
-                CassifyAdapter cassifyAdapter = new CassifyAdapter(classifyList);
-                cassifyAdapter.setOnItemClickListener(new CassifyAdapter.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(int position) {
-                        // TODO: 2020/1/3 把 ID 发出去
-                        EventBus.getDefault().post(classifyList.get(position).getId());
-                    }
-                });
-                mRecyclerClassify.setAdapter(cassifyAdapter);
-
-            }
-
-            // TODO: 2020/1/3 右侧商品的查询和展示
-            CommodityTable commodityTable = commodityTableDao.queryBuilder().unique();
-            String commodityJson = commodityTable.getCommodityJson();
-            CommodityBean commodityBean = new Gson().fromJson(commodityJson, CommodityBean.class);
-
-            List<CommodityBean.ResultBean> commodityList = commodityBean.getResult();
-
-            GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2);
-            gridLayoutManager.setOrientation(GridLayoutManager.VERTICAL);
-            mRecyclerCommodity.setLayoutManager(gridLayoutManager);
-
-            CommodityAdapter commodityAdapter = new CommodityAdapter(commodityList);
-            mRecyclerCommodity.setAdapter(commodityAdapter);
+            //从数据库中获取分类数据
+            getClassifyDataFromDatabase();
+            //从数据库中获取商品数据
+            getCommodityDataFromDatabase();
         }
     }
+
+    // TODO: 2020/1/3 左侧分类的查询和展示
+    private void getClassifyDataFromDatabase() {
+
+        // 查询到分类bean
+        ClassifyTable classifyTable = classifyTableDao.queryBuilder().unique();
+
+        if (classifyTable != null) {
+            //拿到分类的json
+            String classifyJson = classifyTable.getClassifyJson();
+            //解析
+            ClassifyBean classifyBean = new Gson().fromJson(classifyJson, ClassifyBean.class);
+
+            //设置布局管理器和适配
+            final List<ClassifyBean.ResultBean.SecondCategoryVoBean> classifyList = classifyBean.getResult().get(0).getSecondCategoryVo();
+
+            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+            linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+            mRecyclerClassify.setLayoutManager(linearLayoutManager);
+
+            CassifyAdapter cassifyAdapter = new CassifyAdapter(classifyList);
+            cassifyAdapter.setOnItemClickListener(new CassifyAdapter.OnItemClickListener() {
+                @Override
+                public void onItemClick(int position) {
+                    // TODO: 2020/1/3 把 ID 发出去
+                    EventBus.getDefault().post(classifyList.get(position).getId());
+                }
+            });
+            mRecyclerClassify.setAdapter(cassifyAdapter);
+
+        }
+    }
+    // TODO: 2020/1/3 右侧商品的查询和展示
+    private void getCommodityDataFromDatabase() {
+
+        CommodityTable commodityTable = commodityTableDao.queryBuilder().unique();
+        String commodityJson = commodityTable.getCommodityJson();
+        CommodityBean commodityBean = new Gson().fromJson(commodityJson, CommodityBean.class);
+
+        List<CommodityBean.ResultBean> commodityList = commodityBean.getResult();
+
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2);
+        gridLayoutManager.setOrientation(GridLayoutManager.VERTICAL);
+        mRecyclerCommodity.setLayoutManager(gridLayoutManager);
+
+        CommodityAdapter commodityAdapter = new CommodityAdapter(commodityList);
+        mRecyclerCommodity.setAdapter(commodityAdapter);
+    }
+
 
     @Override
     protected void initView() {
