@@ -1,6 +1,10 @@
 package com.bw.forwardweek2.util;
 
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+
 import com.bw.forwardweek2.model.Api;
 
 import java.util.concurrent.TimeUnit;
@@ -69,5 +73,14 @@ public class NetUtil {
     // TODO: 2020/1/3 终极目标，拿到api
     public Api getApi() {
         return api;
+    }
+
+    public boolean hasNet(Context context) {
+        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        if (activeNetworkInfo != null && activeNetworkInfo.isAvailable()) {
+            return true;
+        }
+        return false;
     }
 }
